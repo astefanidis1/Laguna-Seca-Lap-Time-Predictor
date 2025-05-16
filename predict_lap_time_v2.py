@@ -4,19 +4,19 @@ from xgboost import XGBRegressor
 
 # === Load the trained model ===
 model = XGBRegressor()
-model.load_model("C:/Users/astef/OneDrive/Desktop/LapTimePredictor_XGBoost_v5.json")
+model.load_model("LapTimePredictor_XGBoost_v5.json")
 
 # === Define your car's stats here ===
 car = {
-    '0-60 (s)': 2.1,
-    '1/4 Mile ET (s)': 8.8,
-    'Trap Speed (mph)': 167,
-    'Top Speed (mph)': 237,
-    'Lateral G @ 120 mph': 2.02,
-    '100-0 Braking (ft)': 209.9,
+    '0-60 (s)': 2.4,
+    '1/4 Mile ET (s)': 9.6,
+    'Trap Speed (mph)': 150,
+    'Top Speed (mph)': 243,
+    'Lateral G @ 120 mph': 1.85,
+    '100-0 Braking (ft)': 232.6,
     'Drive Type Encoded': 2,  # RWD=0, FWD=1, AWD=2
-    'Weight (lb)': 3001,
-    '60-130 (s)': 3.6
+    'Weight (lb)': 3637,
+    '60-130 (s)': 4.9
 }
 
 # === Dataset z-score stats ===
