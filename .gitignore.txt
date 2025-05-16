@@ -1,5 +1,0 @@
-# Ignore any real data files
-*.csv
-
-# Keep only sample CSV
-!sample_input_data.csv
