@@ -8,7 +8,7 @@ from sklearn.metrics import mean_squared_error
 from scipy.stats import zscore
 
 # === Load and prepare the data ===
-df = pd.read_csv("C:/Users/astef/OneDrive/Desktop/Lap Regression V2 - Sheet1 (1).csv")
+df = pd.read_csv("sample_input_data.csv")
 
 def convert_lap_time(lap_str):
     try:
