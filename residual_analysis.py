@@ -1,3 +1,5 @@
+# Residual Analysis Script (Zandros Projects)
+# Evaluates absolute prediction error across dataset
 
 import pandas as pd
 import numpy as np
@@ -5,10 +7,10 @@ from xgboost import XGBRegressor
 
 # === Load trained model ===
 model = XGBRegressor()
-model.load_model("C:/Users/astef/OneDrive/Desktop/LapTimePredictor_XGBoost_v2.json")
+model.load_model("LapTimePredictor_XGBoost_v2.json")
 
 # === Load full dataset ===
-df = pd.read_csv("C:/Users/astef/Downloads/Lap Regression V2 - Sheet1.csv")
+df = pd.read_csv("sample_input_data.csv")
 
 # === Convert lap time to seconds ===
 def convert_lap_time(lap_str):
@@ -59,5 +61,5 @@ if car_names is not None:
 df_sorted = df_results.sort_values(by="Absolute Error", ascending=False)
 
 # === Save the result to CSV ===
-df_sorted.to_csv("C:/Users/astef/OneDrive/Desktop/lap_time_residuals.csv", index=False)
-print("✅ Residual analysis saved as 'lap_time_residuals.csv' on your Desktop.")
+df_sorted.to_csv("lap_time_residuals.csv", index=False)
+print("✅ Residual analysis saved as 'lap_time_residuals.csv'")

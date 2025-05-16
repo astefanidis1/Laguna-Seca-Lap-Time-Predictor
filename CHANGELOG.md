@@ -90,7 +90,7 @@
 
 ### **📂 Final File Outputs**
 
-- `Lap Regression V2 - Sheet1 (1).csv` – Cleaned dataset
+- `sample_input_data.csv` – Cleaned dataset (public sample)
 - `LapTimePredictor_XGBoost_v5.json` – Final model
 - `lagunasecapyth.py` – Training script (non-Optuna)
 - `lagunasecapyth_optuna.py` – Full Optuna tuner

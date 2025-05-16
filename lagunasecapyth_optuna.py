@@ -78,5 +78,5 @@ final_model = XGBRegressor(**study.best_params)
 final_model.fit(X_train, y_train)
 
 # Save model
-final_model.save_model("C:/Users/astef/OneDrive/Desktop/LapTimePredictor_XGBoost_v5.json")
+final_model.save_model("LapTimePredictor_XGBoost_v5.json")
 print("✅ Model saved as LapTimePredictor_XGBoost_v5.json")

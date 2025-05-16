@@ -8,10 +8,10 @@ Predict Laguna Seca lap times for real or fictional cars using real-world perfor
 
 | File | Purpose |
 |------|---------|
-| `Lap Regression V2 - Sheet1 (1).csv` | Cleaned dataset with 356 cars |
+| `sample_input_data.csv` | Cleaned dataset sample |
 | `Laguna_Seca_Model_Summary.md` | Full model and feature documentation |
 | `predict_lap_time_v2.py` | Main prediction script (uses trained model) |
-| `lagunasecapyth.py` | XGBoost trainer (basic) |
+| `archive/lagunasecapyth_baseline.py` | Archived baseline trainer (non-Optuna) |
 | `lagunasecapyth_optuna.py` | XGBoost trainer with Optuna tuning |
 | `LapTimePredictor_XGBoost_v5.json` | Final trained model (v5) |
 | `residual_analysis_v2.py` | Residual z-score based outlier tool |
@@ -20,6 +20,13 @@ Predict Laguna Seca lap times for real or fictional cars using real-world perfor
 ---
 
 ## 🚀 How to Predict a Lap Time
+
+## 🧰 Requirements
+
+Install dependencies with:
+
+```bash
+pip install -r requirements.txt
 
 1. Open `predict_lap_time_v2.py`
 2. Scroll to the `car = { ... }` block

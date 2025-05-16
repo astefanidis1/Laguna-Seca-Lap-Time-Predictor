@@ -78,7 +78,7 @@ Correction: (3.96 - 3.9) × 0.6 = -0.036s
 
 ## 🧾 What to Save
 
-- `Lap Regression V2 - Sheet1 (1).csv` – Cleaned dataset
+- `sample_input_data.csv` – Public sample of cleaned dataset
 - `LapTimePredictor_XGBoost_v5.json` – Final trained model
 - `lagunasecapyth.py` – Manual trainer (non-Optuna)
 - `lagunasecapyth_optuna.py` – Full Optuna tuner
