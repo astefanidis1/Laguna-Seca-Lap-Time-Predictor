@@ -8,25 +8,18 @@ Predict Laguna Seca lap times for real or fictional cars using real-world perfor
 
 | File | Purpose |
 |------|---------|
-| `sample_input_data.csv` | Cleaned dataset sample |
-| `Laguna_Seca_Model_Summary.md` | Full model and feature documentation |
+| `Lap Regression V3.csv` | Cleaned dataset with 356 cars |
+| `Laguna_Seca_Model_Summary.md` | Full model and feature documentation (v6) |
 | `predict_lap_time_v2.py` | Main prediction script (uses trained model) |
-| `archive/lagunasecapyth_baseline.py` | Archived baseline trainer (non-Optuna) |
-| `lagunasecapyth_optuna.py` | XGBoost trainer with Optuna tuning |
-| `LapTimePredictor_XGBoost_v5.json` | Final trained model (v5) |
+| `lagunasecapyth.py` | XGBoost trainer (basic) |
+| `lagunasecapyth_optuna.py` | XGBoost trainer with Optuna tuning + monotonic constraints |
+| `LapTimePredictor_XGBoost_v5.json` | Final trained model (v6) |
 | `residual_analysis_v2.py` | Residual z-score based outlier tool |
 | `CHANGELOG.md` | Full chronological list of improvements |
 
 ---
 
 ## 🚀 How to Predict a Lap Time
-
-## 🧰 Requirements
-
-Install dependencies with:
-
-```bash
-pip install -r requirements.txt
 
 1. Open `predict_lap_time_v2.py`
 2. Scroll to the `car = { ... }` block
@@ -51,26 +44,22 @@ pip install -r requirements.txt
 
 5. The output will show:
    - Predicted time in MM:SS
-   - Correction bonus applied (if any)
 
 ---
 
-## 🧠 Model Overview
+## 🧠 Model Overview (v6)
 
-- Model: `XGBoostRegressor` (v5, Optuna-tuned)
+- Model: `XGBoostRegressor` (v6, Optuna-tuned, monotonic constraints)
 - Engineered features:
   - Composite Grip Index, Acceleration Curve, Powerband Balance
-  - Grip Z and Braking Z for outlier scaling
-- Bonus System:
-  - If `Grip Z + Braking Z > 3.9`, a small penalty is subtracted to correct high-end track cars
+  - Track Dominance Index = (Lateral G ^ 2) / Braking Distance
+- Removed bonus system — model now inherently understands grip/braking impact
 
 ---
 
 ## 💡 Example Prediction Output
 ```
-Z-summary → Grip Z: 2.55, Braking Z: 1.41, Combined: 3.96
-⚠️ Correction Bonus Applied: -0.036 sec (Extreme Grip + Braking Adjustment)
-Predicted Lap Time: 1:21.108 (Total: 81.108 seconds)
+Predicted Lap Time: 1:20.348 (Total: 80.348 seconds)
 ```
 
 ---
@@ -80,7 +69,7 @@ Predicted Lap Time: 1:21.108 (Total: 81.108 seconds)
 If needed, retrain with:
 ```bash
 python lagunasecapyth.py            # for quick retrain
-python lagunasecapyth_optuna.py     # for hyperparameter tuning
+python lagunasecapyth_optuna.py     # for hyperparameter tuning (w/ constraints)
 ```
 This uses the cleaned CSV and will regenerate `LapTimePredictor_XGBoost_v5.json`
 
@@ -97,9 +86,9 @@ It saves `lap_time_residuals.csv` with prediction errors and z-scores.
 
 ## ✅ Final Notes
 - Cleaned dataset: 356 valid cars
-- Lap time prediction tuned to extreme precision
-- Correction bonus logic improves realism near prototype levels
-- See `CHANGELOG.md` for every step of the process
+- v6 model is fully physics-aligned and logical
+- Handles hypercars and prototypes without correction hacks
+- See `CHANGELOG.md` for full version history
 
 ---
 

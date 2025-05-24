@@ -5,10 +5,9 @@ from xgboost import XGBRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.impute import SimpleImputer
 from sklearn.metrics import mean_squared_error
-from scipy.stats import zscore
 
 # === Load and prepare the data ===
-df = pd.read_csv("sample_input_data.csv")
+df = pd.read_csv("Lap Regression V3.csv")
 
 def convert_lap_time(lap_str):
     try:
@@ -35,16 +34,17 @@ df_imputed = pd.DataFrame(imputer.fit_transform(df), columns=cols + ['Lap Time (
 df_imputed["Composite Grip Index"] = df_imputed["Lateral G @ 120 mph"] / df_imputed["100-0 Braking (ft)"]
 df_imputed["Acceleration Curve"] = df_imputed["60-130 (s)"] / df_imputed["0-60 (s)"]
 df_imputed["Powerband Balance"] = (df_imputed["Trap Speed (mph)"] / df_imputed["Top Speed (mph)"]) * df_imputed["60-130 (s)"]
-df_imputed["Grip Z"] = zscore(df_imputed["Lateral G @ 120 mph"])
-df_imputed["Braking Z"] = zscore(-df_imputed["100-0 Braking (ft)"])
+df_imputed["Track Dominance Index"] = (df_imputed["Lateral G @ 120 mph"] ** 2) / df_imputed["100-0 Braking (ft)"]
 
-X = df_imputed[[
+feature_cols = [
     '0-60 (s)', '1/4 Mile ET (s)', 'Trap Speed (mph)', 'Top Speed (mph)',
     'Drive Type Encoded', 'Weight (lb)', '60-130 (s)',
-    'Lateral G @ 120 mph', '100-0 Braking (ft)',  # raw
+    'Lateral G @ 120 mph', '100-0 Braking (ft)',
     'Composite Grip Index', 'Acceleration Curve', 'Powerband Balance',
-    'Grip Z', 'Braking Z'  # engineered
-]]
+    'Track Dominance Index'
+]
+
+X = df_imputed[feature_cols]
 y = df_imputed["Lap Time (s)"]
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
@@ -58,7 +58,8 @@ def objective(trial):
         "subsample": trial.suggest_float("subsample", 0.6, 1.0),
         "colsample_bytree": trial.suggest_float("colsample_bytree", 0.6, 1.0),
         "gamma": trial.suggest_float("gamma", 0, 5),
-        "random_state": 42
+        "random_state": 42,
+        "monotone_constraints": "(-1,-1,-1,-1,0,1,-1,-1,1,-1,-1,0,-1)"
     }
 
     model = XGBRegressor(**params)
@@ -74,7 +75,7 @@ study.optimize(objective, n_trials=50)
 # === Train final model with best params ===
 print("Best Parameters:", study.best_params)
 
-final_model = XGBRegressor(**study.best_params)
+final_model = XGBRegressor(**study.best_params, monotone_constraints="(-1,-1,-1,-1,0,1,-1,-1,1,-1,-1,0,-1)")
 final_model.fit(X_train, y_train)
 
 # Save model

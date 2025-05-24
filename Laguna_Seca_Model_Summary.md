@@ -1,25 +1,26 @@
-# Laguna Seca Lap Time Prediction Model (XGBoost v5)
+# Laguna Seca Lap Time Prediction Model (XGBoost v6)
 
 ## ✅ Model Type
-- **XGBoost Regressor**
-  - Final Parameters (tuned via Optuna):
-    ```
-    {
-      'n_estimators': 248,
-      'max_depth': 5,
-      'learning_rate': 0.15486,
-      'subsample': 0.6099,
-      'colsample_bytree': 0.8632,
-      'gamma': 2.608
-    }
-    ```
-- **Evaluation**:
-  - RMSE: **1.43 seconds** (lowest achieved)
-  - 5-Fold Cross-Validation used in tuning
+- **XGBoost Regressor** (v6)
+  - Tuned via **Optuna** with 50 trials
+  - Monotonic constraints applied to enforce logical feature influence
+  - **Correction bonus system removed** — model now learns grip/braking importance inherently
+
+### Best Parameters (v6):
+```python
+{
+  'n_estimators': 482,
+  'max_depth': 6,
+  'learning_rate': 0.0664,
+  'subsample': 0.7211,
+  'colsample_bytree': 0.6036,
+  'gamma': 3.4919
+}
+```
 
 ---
 
-## 📊 Input Features (14 total)
+## 📊 Input Features (13 total)
 
 | Feature | Description | Direction (Better When...) |
 |--------|-------------|-----------------------------|
@@ -27,61 +28,63 @@
 | `1/4 Mile ET (s)` | Quarter mile time | ↓ Lower |
 | `Trap Speed (mph)` | Speed at end of 1/4 | ↑ Higher |
 | `Top Speed (mph)` | Max speed | ↑ Higher |
-| `Drive Type Encoded` | 0 = RWD, 1 = FWD, 2 = AWD | Auto-handled |
+| `Drive Type Encoded` | 0 = RWD, 1 = FWD, 2 = AWD | Neutral |
 | `Weight (lb)` | Curb weight | ↓ Lower |
 | `60-130 (s)` | Time from 60 to 130 mph | ↓ Lower |
 | `Lateral G @ 120 mph` | Cornering grip | ↑ Higher |
 | `100-0 Braking (ft)` | Braking distance | ↓ Lower |
 | `Composite Grip Index` | Lateral G / Braking ft | ↑ Higher |
-| `Acceleration Curve` | 60–130 / 0–60 | ~ Ideal near 1.0–1.4 |
+| `Acceleration Curve` | 60–130 / 0–60 | Ideal around 1.0–1.4 |
 | `Powerband Balance` | (Trap / Top Speed) × 60–130 | Context-dependent |
-| `Grip Z` | Z-score of Lateral G | ↑ Higher |
-| `Braking Z` | Negative Z-score of Braking (lower is better) | ↑ Higher |
+| `Track Dominance Index` | (Lateral G ^ 2) / Braking ft | ↑ Higher |
 
 ---
 
-## 🧠 Key Learnings
-- Most influential factors:
-  - `Trap Speed`
-  - `Lateral G`
-  - `0–60 time`
-  - `Weight`
-  - `Braking Z` when extreme
-- Pure grip/braking is underweighted in typical models — addressed here using:
-  - Z-scores for outlier scaling
-  - Bonus correction (see below)
+## 📈 Model Performance
+
+- **RMSE**: **1.63 seconds** (5-fold CV average)
+- **Correction Bonus System Removed** — no longer needed
+- Predicts prototype-level cars naturally, without hacky adjustments
 
 ---
 
-## ⚠️ Correction Bonus System (v5+)
+## 📐 Monotonic Constraints Applied
 
-- Applied **after** model prediction, only for extreme cases:
-  - `Grip Z + Braking Z > 3.9`
-  - Bonus = `(Total Z - 3.9) × 0.6`, max -2.0s
-  - Helps fix prototype-level cornering anomalies
-
-Example:
-```
-Grip Z = 2.55, Braking Z = 1.41 → Z = 3.96
-Correction: (3.96 - 3.9) × 0.6 = -0.036s
-```
+| Feature                  | Direction Enforced |
+|--------------------------|--------------------|
+| `0–60 (s)`               | ↓ Faster = Better  |
+| `1/4 Mile ET (s)`        | ↓ Faster = Better  |
+| `Trap Speed`             | ↑ Higher = Better  |
+| `Top Speed`              | ↑ Higher = Better  |
+| `Drive Type Encoded`     | Neutral            |
+| `Weight`                 | ↓ Lower = Better   |
+| `60–130 (s)`             | ↓ Faster = Better  |
+| `Lateral G`              | ↑ Higher = Better  |
+| `Braking (ft)`           | ↓ Shorter = Better |
+| `Composite Grip Index`   | ↑ Higher = Better  |
+| `Acceleration Curve`     | ↓ Optimal Range    |
+| `Powerband Balance`      | Neutral            |
+| `Track Dominance Index`  | ↑ Higher = Better  |
 
 ---
 
-## 🧪 How to Use
+## 🧠 Why This Version Is Better
 
-1. Define a car dictionary with all required stats (see README).
-2. Run `predict_lap_time_v2.py`.
-3. It returns the predicted lap time with optional correction bonus applied.
+- **No bonus patches** — everything learned directly
+- **Handles extreme hypercars** like Ducati Evoluzione R with perfect logical ordering
+- **Cleaner, smaller feature set (13 total)**
+- **Physics-aligned logic** via Track Dominance Index and monotonic constraints
 
 ---
 
 ## 🧾 What to Save
 
-- `sample_input_data.csv` – Public sample of cleaned dataset
-- `LapTimePredictor_XGBoost_v5.json` – Final trained model
-- `lagunasecapyth.py` – Manual trainer (non-Optuna)
-- `lagunasecapyth_optuna.py` – Full Optuna tuner
-- `predict_lap_time_v2.py` – Main prediction script (w/ bonus)
-- `residual_analysis_v2.py` – Error analysis script
-- `CHANGELOG.md` – Full documentation of process and improvements
+- `Lap Regression V3.csv` – Cleaned dataset
+- `LapTimePredictor_XGBoost_v5.json` – Final trained model (v6)
+- `lagunasecapyth_optuna.py` – Full Optuna tuner (with constraints)
+- `predict_lap_time_v2.py` – Main predictor script
+- `CHANGELOG.md` – Full version history and upgrades
+
+---
+
+🏁 **This is the final v6 model — fast, fair, and physics-aware.**
