@@ -1,16 +1,17 @@
 # Residual Analysis Script (Zandros Projects)
-# Evaluates absolute prediction error across dataset
+# Evaluates prediction errors across dataset using latest model (v7 or v8)
 
 import pandas as pd
 import numpy as np
 from xgboost import XGBRegressor
+from sklearn.impute import SimpleImputer
 
-# === Load trained model ===
+# === Load model ===
 model = XGBRegressor()
-model.load_model("LapTimePredictor_XGBoost_v2.json")
+model.load_model("LapTimePredictor_XGBoost_v7.json")
 
-# === Load full dataset ===
-df = pd.read_csv("sample_input_data.csv")
+# === Load dataset ===
+df = pd.read_csv("Lap Regression V4.csv")
 
 # === Convert lap time to seconds ===
 def convert_lap_time(lap_str):
@@ -21,45 +22,43 @@ def convert_lap_time(lap_str):
         return np.nan
 
 df["Lap Time (s)"] = df["Laguna Seca Lap Time (s)"].apply(convert_lap_time)
-df['Drive Type Encoded'] = df['Drive Type'].map({'RWD': 0, 'FWD': 1, 'AWD': 2})
 
-# === Select and clean key columns ===
+# === Select core features (latest model input) ===
 keep_cols = [
-    '0-60 (s)', '1/4 Mile ET (s)', 'Trap Speed (mph)', 'Top Speed (mph)',
-    'Lateral G @ 120 mph', '100-0 Braking (ft)', 'Drive Type Encoded',
-    'Weight (lb)', '60-130 (s)', 'Lap Time (s)'
+    '0-60 (s)', '1/4 Mile ET (s)', 'Trap Speed (mph)',
+    '60-130 (s)', 'Lateral G @ 120 mph', '100-0 Braking (ft)',
+    'Lap Time (s)'
 ]
 
-car_names = df['Car'] if 'Car' in df.columns else None
-df = df[keep_cols]
-df = df.dropna(subset=['Lap Time (s)'])  # only keep cars with real lap times
+# === Drop missing values on target ===
+df = df[keep_cols].dropna(subset=['Lap Time (s)'])
 
-# === Impute missing values ===
-from sklearn.impute import SimpleImputer
+# === Impute missing input values ===
 imputer = SimpleImputer(strategy='median')
-df_imputed = pd.DataFrame(imputer.fit_transform(df.drop(columns=['Lap Time (s)'])), columns=keep_cols[:-1])
+X_base = df.drop(columns=['Lap Time (s)'])
+X_imputed = pd.DataFrame(imputer.fit_transform(X_base), columns=X_base.columns)
 
-# === Add engineered features ===
-df_imputed["Speed Efficiency"] = df_imputed["Trap Speed (mph)"] / df_imputed["1/4 Mile ET (s)"]
-df_imputed["Composite Grip Index"] = df_imputed["Lateral G @ 120 mph"] / df_imputed["100-0 Braking (ft)"]
-df_imputed["Acceleration Curve"] = df_imputed["60-130 (s)"] / df_imputed["0-60 (s)"]
-df_imputed["Powerband Balance"] = (df_imputed["Trap Speed (mph)"] / df_imputed["Top Speed (mph)"]) * df_imputed["60-130 (s)"]
+# === Add engineered feature: Acceleration Curve ===
+X_imputed["Acceleration Curve"] = X_imputed["60-130 (s)"] / X_imputed["0-60 (s)"]
+
+# === Final feature order (must match model) ===
+feature_cols = [
+    '0-60 (s)', '1/4 Mile ET (s)', 'Trap Speed (mph)',
+    '60-130 (s)', 'Lateral G @ 120 mph', '100-0 Braking (ft)',
+    'Acceleration Curve'
+]
 
 # === Predict lap times ===
-features = df_imputed.columns
-predicted_times = model.predict(df_imputed[features])
+y_actual = df["Lap Time (s)"].values
+y_pred = model.predict(X_imputed[feature_cols])
 
-# === Compile results ===
+# === Calculate residuals ===
 df_results = df.copy()
-df_results["Predicted Lap Time (s)"] = predicted_times
-df_results["Prediction Error"] = df_results["Predicted Lap Time (s)"] - df_results["Lap Time (s)"]
-df_results["Absolute Error"] = df_results["Prediction Error"].abs()
-if car_names is not None:
-    df_results["Car"] = car_names.values[:len(df_results)]
+df_results["Predicted Lap Time (s)"] = y_pred
+df_results["Prediction Error"] = y_pred - y_actual
+df_results["Absolute Error"] = np.abs(df_results["Prediction Error"])
 
-# === Sort by worst predictions ===
+# === Sort and export ===
 df_sorted = df_results.sort_values(by="Absolute Error", ascending=False)
-
-# === Save the result to CSV ===
 df_sorted.to_csv("lap_time_residuals.csv", index=False)
-print("✅ Residual analysis saved as 'lap_time_residuals.csv'")
+print("✅ Residual analysis saved as 'lap_time_residualsV2.csv'")
