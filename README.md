@@ -1,115 +1,78 @@
-# 🏁 Laguna Seca Lap Time Predictor
+# 🏁 Laguna Seca Lap Time Predictor — v10
 
-Predict Laguna Seca lap times for real or fictional cars using real-world performance stats and a finely-tuned XGBoost regression model.
+## 💡 What This Project Does
 
----
-
-## 📆 What's Included
-
-| File                               | Purpose                                         |
-| ---------------------------------- | ----------------------------------------------- |
-| `sample_input_data.csv`            | Public sample data users can try predictions on |
-| `Laguna_Seca_Model_Summary.md`     | Full model and feature documentation            |
-| `predict_lap_time_v2.py`           | Main prediction script                          |
-| `lagunasecapyth_optuna.py`         | XGBoost training script with Optuna tuning      |
-| `LapTimePredictor_XGBoost_v9.json` | Final model (locked)                            |
-| `residual_analysis.py`             | Residual z-score + missing data filtering tool  |
-| `CHANGELOG.md`                     | Full chronological list of improvements         |
+This tool predicts how fast a car will lap Laguna Seca using real-world performance specs. You enter core metrics like 0–60 time, lateral Gs, braking, etc., and the model returns an estimated lap time.
 
 ---
 
-## 🚀 How to Predict a Lap Time
+## 📆 Files & Purpose
 
-1. Open `predict_lap_time_v2.py`
-2. Scroll to the `car = { ... }` block
-3. Replace the values with your car's stats:
-
-   ```python
-   car = {
-       '0-60 (s)': 2.4,
-       '1/4 Mile ET (s)': 9.6,
-       'Trap Speed (mph)': 150,
-       '60-130 (s)': 4.9,
-       'Lateral G @ 120 mph': 1.85,
-       '100-0 Braking (ft)': 232.6
-   }
-   ```
-4. Save and run:
-
-   ```bash
-   python predict_lap_time_v2.py
-   ```
-5. The output will show:
-
-   * Predicted time in `MM:SS.mmm`
+| File                               | Purpose                                                   |
+| ---------------------------------- | --------------------------------------------------------- |
+| `README.md`                        | You’re here! Overview and usage instructions              |
+| `Laguna_Seca_Model_Summary.md`     | Full explanation of the model evolution (v9 → v10)        |
+| `sample_input_data.csv`            | Demo cars for trying out predictions                      |
+| `LapTimePredictor_MLP_v10_best.h5` | Neural network model trained with Optuna tuning (v10)     |
+| `scaler_v10.pkl`                   | Scaler used to normalize inputs during training           |
+| `predict_lap_time_nn.py`           | Main script to run predictions using the v10 neural model |
+| `predict_lap_time_v2.py`           | (Legacy) Script using the older XGBoost v9 model          |
+| `residual_analysis.py`             | Optional: analyze prediction errors and performance       |
+| `CHANGELOG.md`                     | Tracks version history and updates                        |
 
 ---
 
-## 🧠 Model Overview (v9)
+## 🛠️ How to Use It
 
-* Model: `XGBoostRegressor`, Optuna-tuned with monotonic constraints
-* Final validation RMSE: **1.64 seconds**
-* Feature Set:
+1. Open `predict_lap_time_nn.py`
+2. Modify the `car` dictionary with your car’s specs:
 
-  * Core stats: 0–60, ¼ mile ET, trap speed, 60–130, lateral G, braking distance
-  * One engineered feature: `Acceleration Curve` (60–130 / 0–60)
-* Removed:
-
-  * Weight, top speed, drive type (redundant or misleading)
-  * Engineered noise features (e.g., Grip Index, Powerband Balance)
-* Trained only on high-quality rows with:
-
-  * Prediction Z-score ≤ 3
-  * Fewer than 3 missing features
-
----
-
-## 💡 Example Output
-
-```
-Predicted Lap Time: 1:24.030 (Total: 84.030 seconds)
+```python
+car = {
+    '0-60 (s)': 3.2,
+    '1/4 Mile ET (s)': 11.0,
+    'Trap Speed (mph)': 130,
+    '60-130 (s)': 7.5,
+    'Lateral G @ 120 mph': 1.15,
+    '100-0 Braking (ft)': 265.0
+}
 ```
 
----
-
-## 🛠 How to Retrain the Model
-
-If needed, retrain with:
-
-```bash
-python lagunasecapyth_optuna.py
-```
-
-This will regenerate:
-
-```
-LapTimePredictor_XGBoost_v9.json
-```
+3. Run the script
+4. It will print your predicted lap time at Laguna Seca
 
 ---
 
-## 📊 Residual Analysis + Filtering
+## 🤖 Model Details (v10)
 
-To analyze model error and identify noisy training rows:
+* Built using a **deep neural network (Keras)**
+* Trained with **Optuna** to tune hyperparameters for realism
+* Uses **7 real-world features**, normalized via `StandardScaler`
+* Designed to generalize well — avoids tunnel vision on trap speed or other features
 
-```bash
-python residual_analysis.py
-```
+### Final features used:
 
-It outputs:
-
-* `lap_time_residuals.csv`: model predictions, errors, and Z-scores
-* Use this to identify and remove high-residual rows
-
----
-
-## ✅ Final Notes
-
-* Final model: **v9** — clean, realistic, and locked in
-* Built only from trusted data — no anchor laps or hardcoded targets
-* Sample file provided (`sample_input_data.csv`) for safe demo use
-* Full version history in `CHANGELOG.md`
+* 0–60 (s)
+* 1/4 Mile ET (s)
+* Trap Speed (mph)
+* 60–130 (s)
+* Lateral G @ 120 mph
+* 100–0 Braking (ft)
+* Acceleration Curve (derived)
 
 ---
 
-Made with precision by Zandros. 🏎️
+## 🔄 Legacy (v9 XGBoost Model)
+
+The previous version (`predict_lap_time_v2.py`) used an XGBoost regression model. While strong on paper, it occasionally overemphasized trap speed and struggled to generalize on unusual car types.
+
+You can still use this version for comparison.
+
+---
+
+## ✅ TL;DR
+
+* `predict_lap_time_nn.py` — neural network model (v10) ✅
+* `predict_lap_time_v2.py` — legacy XGBoost model (v9)
+* `README.md` — usage guide
+* `Laguna_Seca_Model_Summary.md` — model evolution and insights

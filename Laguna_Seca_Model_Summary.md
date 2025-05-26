@@ -1,27 +1,26 @@
-# Laguna Seca Lap Time Prediction Model (XGBoost v9)
+# Laguna Seca Lap Time Prediction Model (MLP v10)
 
 ## ✅ Model Type
 
-* **XGBoost Regressor** (v9)
+* **Multilayer Perceptron (Neural Network)** (v10)
 
+  * Built with **TensorFlow / Keras**
   * Tuned via **Optuna** with 100 trials
-  * Monotonic constraints applied to enforce logical feature influence
-  * Trained only on **high-quality data**:
+  * Trained on high-quality, real-world data only
+  * Inputs normalized using `StandardScaler`
+  * Simple, fully connected architecture with dropout
+  * SHAP + perturbation checks confirm balanced feature use
 
-    * Residual Z-score ≤ 3
-    * Fewer than 3 missing values (pre-imputation)
-  * All bonus/patch systems removed
-
-### Best Parameters (v9):
+### Best Hyperparameters (Optuna v10):
 
 ```python
 {
-  'n_estimators': 209,
-  'max_depth': 7,
-  'learning_rate': 0.0791,
-  'subsample': 0.8303,
-  'colsample_bytree': 0.9085,
-  'gamma': 3.5639
+  'n_layers': 1,
+  'dropout': 0.0172,
+  'learning_rate': 0.00129,
+  'batch_size': 16,
+  'units_l0': 256,
+  'activation_l0': 'tanh'
 }
 ```
 
@@ -43,45 +42,23 @@
 
 ## 📈 Model Performance
 
-* **Validation RMSE**: **1.64 seconds**
-* Fully monotonic and physics-aligned
-* Outperforms all previous versions in realism and ranking logic
-* Reproduces lap time gaps between cars without clustering or flattening
-
----
-
-## ▱ Monotonic Constraints Applied
-
-| Feature              | Direction Enforced |
-| -------------------- | ------------------ |
-| `0–60 (s)`           | ↓ Faster = Better  |
-| `1/4 Mile ET (s)`    | ↓ Faster = Better  |
-| `Trap Speed`         | ↑ Higher = Better  |
-| `60–130 (s)`         | ↓ Faster = Better  |
-| `Lateral G`          | ↑ Higher = Better  |
-| `Braking (ft)`       | ↓ Shorter = Better |
-| `Acceleration Curve` | ↓ Lower = Better   |
-
----
-
-## 🧠 Why This Version Is Final
-
-* ✅ Most accurate predictions to date
-* ✅ Realistic performance spread (hypercar vs street vs classic)
-* ✅ Cleaned feature set and data make it easier to maintain
-* ✅ No more stat inflation or overfitting from engineered features
-* ✅ Fully reproducible using public-safe sample input
+* **Validation MAE**: \~**1.05 seconds**
+* Closely matches real-world anchor laps (LFA, NSX)
+* Generalizes well to fictional cars without trap speed bias
+* No monotonic constraints used — learned behavior naturally
+* All 7 features have measurable influence (confirmed via perturbation)
 
 ---
 
 ## 📄 Key Files
 
-* `LapTimePredictor_XGBoost_v9.json` – Final trained model
-* `lagunasecapyth_optuna.py` – Optuna trainer with constraints
-* `predict_lap_time_v2.py` – Lap time predictor
-* `sample_input_data.csv` – Public testing set
-* `CHANGELOG.md` – Full model history
+* `LapTimePredictor_MLP_v10_best.h5` – Final trained MLP model
+* `neural_model_optuna.py` – Optuna tuning script
+* `predict_lap_time_v10.py` – Inference script with scaler + NN
+* `scaler_v10.pkl` – Saved `StandardScaler`
+* `TrainingDataV10.csv` – Final clean training data
+* `CHANGELOG.md` – Full version history
 
 ---
 
-🏁 **This is the final v9 model: accurate, transparent, and battle-tested.**
+🏁 **This is the final v10 model: neural-powered, realistic, and deeply validated.**
