@@ -22,9 +22,9 @@ This tool predicts how fast a car will lap Laguna Seca using real-world performa
 
 ---
 
-## 🛠️ How to Use It
 
-1. Open `predict_lap_time_nn.py`
+🛠️ How to Use It
+1. Open `LagunaPredictorV10.py`
 2. Modify the `car` dictionary with your car’s specs:
 
 ```python
