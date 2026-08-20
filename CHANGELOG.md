@@ -1,6 +1,21 @@
 # 🕒 CHANGELOG
 
-## 🚀 v10 — Final Neural Network Model (May 25, 2025)
+## 🚀 v2.0 — The Oracle App Launch (July 2025)
+
+* 🌟 Rebranded "Laguna Seca Lap Time Predictor v10" into **The Oracle**, part of TheCarBible suite
+* ✅ Streamlit MVP scoped and planned:
+
+  * Manual input fields (0–60, trap, etc.)
+  * Derived `Acceleration Curve`
+  * MM\:SS.sss prediction output
+  * Track dropdown (Laguna only for now)
+  * Placeholder for closest-car matching
+* 🔐 Private dataset confirmed as behind-the-scenes engine (not exposed)
+* 🖋️ README and model summary rewritten for new vision
+
+---
+
+## 🚀 v1.95 — Final Neural Network Model (May 25, 2025)
 
 * ✅ Migrated from XGBoost to a Keras-based **neural network (MLP)**
 * ✅ Used **Optuna** to tune hyperparameters over 100 trials
@@ -17,7 +32,7 @@
 
 ---
 
-## ✅ v9 — Finalized XGBoost Model (May 25, 2025)
+## ✅ v1.9 — Finalized XGBoost Model (May 25, 2025)
 
 * ✅ Removed upstream features that caused redundancy or inflated importance:
 
@@ -37,7 +52,7 @@
 
 ---
 
-## ✅ v8 — Trimmed Outliers (May 25, 2025)
+## ✅ v1.8 — Trimmed Outliers (May 25, 2025)
 
 * Trimmed dataset using lap time percentiles (5th to 95th)
 * Retrained on cleaned data using Optuna tuning
@@ -45,7 +60,7 @@
 
 ---
 
-## ✅ v7 — Streamlined Feature Set (May 25, 2025)
+## ✅ v1.7 — Streamlined Feature Set (May 25, 2025)
 
 * Removed `Horsepower`, `Weight`, `Drive Type`, and `Top Speed`
 * Only retained meaningful acceleration, grip, and braking features
@@ -54,7 +69,7 @@
 
 ---
 
-## ✅ v6 — Pre-Refactor Baseline
+## ✅ v1.6 — Pre-Refactor Baseline
 
 * Full feature set, included some redundant inputs
 * Observed flat predictions and unrealistic clustering

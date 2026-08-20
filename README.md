@@ -1,31 +1,38 @@
-# 🏁 Laguna Seca Lap Time Predictor — v10
+# 🧠 The Oracle — Lap Time Prediction Tool (Powered by TheCarBible)
 
-## 💡 What This Project Does
+## 💡 What This Tool Does
 
-This tool predicts how fast a car will lap Laguna Seca using real-world performance specs. You enter core metrics like 0–60 time, lateral Gs, braking, etc., and the model returns an estimated lap time.
+**The Oracle** predicts how fast any car would lap Laguna Seca (and eventually other tracks) using machine learning. Users can input key performance stats — like acceleration, trap speed, grip, and braking — and receive a realistic lap time estimate.
 
----
-
-## 📆 Files & Purpose
-
-| File                               | Purpose                                                   |
-| ---------------------------------- | --------------------------------------------------------- |
-| `README.md`                        | You’re here! Overview and usage instructions              |
-| `Laguna_Seca_Model_Summary.md`     | Full explanation of the model evolution (v9 → v10)        |
-| `sample_input_data.csv`            | Demo cars for trying out predictions                      |
-| `LapTimePredictor_MLP_v10_best.h5` | Neural network model trained with Optuna tuning (v10)     |
-| `scaler_v10.pkl`                   | Scaler used to normalize inputs during training           |
-| `predict_lap_time_nn.py`           | Main script to run predictions using the v10 neural model |
-| `predict_lap_time_v2.py`           | (Legacy) Script using the older XGBoost v9 model          |
-| `residual_analysis.py`             | Optional: analyze prediction errors and performance       |
-| `CHANGELOG.md`                     | Tracks version history and updates                        |
+This evolved from the original "Laguna Seca Lap Time Predictor v10" project into a polished tool within *TheCarBible* suite.
 
 ---
 
+## 📦 Included Files & Purpose
 
-🛠️ How to Use It
-1. Open `LagunaPredictorV10.py`
-2. Modify the `car` dictionary with your car’s specs:
+| File                               | Purpose                                              |
+| ---------------------------------- | ---------------------------------------------------- |
+| `README.md`                        | You’re here! Project overview and usage instructions |
+| `Oracle_Model_Summary.md`          | Technical summary of the ML model (v9 → v10)         |
+| `sample_input_data.csv`            | (Legacy/testing) Example cars for prediction testing |
+| `LapTimePredictor_MLP_v10_best.h5` | Trained neural network (Keras + Optuna-tuned)        |
+| `scaler_v10.pkl`                   | StandardScaler for feature normalization             |
+| `LagunaPredictorV10.py`            | Script for prediction using the model                |
+| `CHANGELOG.md`                     | Version history and updates                          |
+
+---
+
+## 🚀 MVP App (v1.0)
+
+A Streamlit-based app will:
+
+* Accept manual car spec inputs (0–60, trap speed, etc.)
+* Auto-calculate Acceleration Curve
+* Predict lap time using the neural model
+* Display the result in clean MM\:SS.sss format
+* Offer a dropdown to select track (only Laguna Seca supported currently)
+
+### Example Input:
 
 ```python
 car = {
@@ -38,19 +45,18 @@ car = {
 }
 ```
 
-3. Run the script
-4. It will print your predicted lap time at Laguna Seca
-
 ---
 
 ## 🤖 Model Details (v10)
 
-* Built using a **deep neural network (Keras)**
-* Trained with **Optuna** to tune hyperparameters for realism
-* Uses **7 real-world features**, normalized via `StandardScaler`
-* Designed to generalize well — avoids tunnel vision on trap speed or other features
+* Built using **Keras / TensorFlow**
+* Tuned using **Optuna** over 100 trials
+* Validated against real-world benchmarks (e.g., LFA, NSX)
+* Final MAE: ≈ **1.05 seconds**
+* Inputs normalized via `StandardScaler`
+* No trap-speed overfitting (avoids the "trap speed trap")
 
-### Final features used:
+### Final Input Features (7):
 
 * 0–60 (s)
 * 1/4 Mile ET (s)
@@ -62,17 +68,33 @@ car = {
 
 ---
 
-## 🔄 Legacy (v9 XGBoost Model)
+## 🛠 Future Features (Planned)
 
-The previous version (`predict_lap_time_v2.py`) used an XGBoost regression model. While strong on paper, it occasionally overemphasized trap speed and struggled to generalize on unusual car types.
+* Track support for Spa, Nürburgring, and others
+* Closest-car comparator from private dataset
+* Residual range/confidence output
+* Car vs car comparison mode
+* Bulk CSV upload support
+* Leaderboard system
 
-You can still use this version for comparison.
+---
+
+## 🔒 Dataset Notice
+
+This project is powered by a **private proprietary dataset** of 490+ vehicles.
+
+The raw dataset:
+
+* Will never be shown or exposed
+* Powers predictions behind the scenes
+* Enables AI-car integration, lore, and ranking systems
 
 ---
 
 ## ✅ TL;DR
 
-* `predict_lap_time_nn.py` — neural network model (v10) ✅
-* `predict_lap_time_v2.py` — legacy XGBoost model (v9)
-* `README.md` — usage guide
-* `Laguna_Seca_Model_Summary.md` — model evolution and insights
+* `LagunaPredictorV10.py` — makes predictions using final v10 model
+* `oracle_app.py` — (coming soon) Streamlit frontend
+* `LapTimePredictor_MLP_v10_best.h5` — trained neural model
+* `scaler_v10.pkl` — input normalizer
+* `Oracle_Model_Summary.md` — deep dive on the modeling process

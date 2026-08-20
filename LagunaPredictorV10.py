@@ -9,12 +9,12 @@ scaler = joblib.load("scaler_v10.pkl")
 
 # === Define your car's stats here ===
 car = {
-    '0-60 (s)': 3.5,
-    '1/4 Mile ET (s)': 11.2,
-    'Trap Speed (mph)': 130,
-    '60-130 (s)': 7.6,
-    'Lateral G @ 120 mph': 1.09,
-    '100-0 Braking (ft)': 266.3
+    '0-60 (s)': 4.2,
+    '1/4 Mile ET (s)': 12.4,
+    'Trap Speed (mph)': 114,
+    '60-130 (s)': 12.7,
+    'Lateral G @ 120 mph': 1.18,
+    '100-0 Braking (ft)': 271.1
 }
 
 # === Define feature order — must match training ===
