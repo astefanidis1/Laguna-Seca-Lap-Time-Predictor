@@ -1,100 +1,85 @@
-# 🧠 The Oracle — Lap Time Prediction Tool (Powered by TheCarBible)
+# The Oracle - Automotive Lap-Time Prediction
 
-## 💡 What This Tool Does
+The Oracle is a machine-learning project that predicts **Laguna Seca lap times** from vehicle performance data.
 
-**The Oracle** predicts how fast any car would lap Laguna Seca (and eventually other tracks) using machine learning. Users can input key performance stats — like acceleration, trap speed, grip, and braking — and receive a realistic lap time estimate.
+The goal is not just to fit a model, but to build a prediction system that behaves credibly across very different cars. The project evolved through multiple model versions, feature sets, outlier analyses, and benchmark checks before arriving at the current neural-network model.
 
-This evolved from the original "Laguna Seca Lap Time Predictor v10" project into a polished tool within *TheCarBible* suite.
+## What it does
 
----
+Users provide seven performance inputs:
 
-## 📦 Included Files & Purpose
+- 0-60 mph time
+- 1/4-mile elapsed time
+- 1/4-mile trap speed
+- 60-130 mph time
+- lateral grip at 120 mph
+- 100-0 braking distance
+- **Acceleration Curve** - a derived feature relating high-speed and low-speed acceleration
 
-| File                               | Purpose                                              |
-| ---------------------------------- | ---------------------------------------------------- |
-| `README.md`                        | You’re here! Project overview and usage instructions |
-| `Oracle_Model_Summary.md`          | Technical summary of the ML model (v9 → v10)         |
-| `sample_input_data.csv`            | (Legacy/testing) Example cars for prediction testing |
-| `LapTimePredictor_MLP_v10_best.h5` | Trained neural network (Keras + Optuna-tuned)        |
-| `scaler_v10.pkl`                   | StandardScaler for feature normalization             |
-| `LagunaPredictorV10.py`            | Script for prediction using the model                |
-| `CHANGELOG.md`                     | Version history and updates                          |
+The model returns an estimated Laguna Seca lap time.
 
----
+## Current model
 
-## 🚀 MVP App (v1.0)
+**Model:** Multilayer Perceptron (TensorFlow / Keras)
 
-A Streamlit-based app will:
+- Tuned with **Optuna** over 100 trials
+- Uses standardized numerical inputs
+- Evaluated with cross-validation during tuning
+- Feature behavior checked with **SHAP** and manual perturbation tests
+- Model errors investigated with residual analysis and real-world benchmark comparisons
+- Historical reported validation MAE: approximately **1.05 seconds**
+- Training data comes from a private dataset of **490+ vehicles**
 
-* Accept manual car spec inputs (0–60, trap speed, etc.)
-* Auto-calculate Acceleration Curve
-* Predict lap time using the neural model
-* Display the result in clean MM\:SS.sss format
-* Offer a dropdown to select track (only Laguna Seca supported currently)
+Earlier XGBoost iterations are preserved in the repository for comparison and development history.
 
-### Example Input:
+## Why the model changed
 
-```python
-car = {
-    '0-60 (s)': 3.2,
-    '1/4 Mile ET (s)': 11.0,
-    'Trap Speed (mph)': 130,
-    '60-130 (s)': 7.5,
-    'Lateral G @ 120 mph': 1.15,
-    '100-0 Braking (ft)': 265.0
-}
+Earlier versions exposed several failure modes, including redundant features, unrealistic prediction clustering, sensitivity to outliers, and excessive influence from trap speed.
+
+The final feature set was intentionally simplified. Weight, top speed, drive type, and several engineered composite metrics were removed after testing showed they added redundancy or distorted model behavior. The retained inputs focus on acceleration, grip, braking, and one derived acceleration-shape feature.
+
+## Validation approach
+
+The project uses multiple checks rather than relying on a single score:
+
+1. **Cross-validation** during hyperparameter tuning
+2. **Residual analysis** to identify systematic errors and extreme outliers
+3. **SHAP analysis** to inspect feature influence
+4. **Manual perturbation tests** to verify sensible directional behavior
+5. **Real-world benchmark checks** against known cars such as the Lexus LFA and Acura/Honda NSX
+
+The tuning pipeline fits preprocessing on each training fold before transforming its validation fold.
+
+## Streamlit app
+
+The repository includes a working Streamlit interface in `Oracle_App.py`.
+
+Run locally:
+
+```bash
+pip install -r requirements.txt
+streamlit run Oracle_App.py
 ```
 
----
+The current model supports Laguna Seca. Additional tracks are future work.
 
-## 🤖 Model Details (v10)
+## Repository map
 
-* Built using **Keras / TensorFlow**
-* Tuned using **Optuna** over 100 trials
-* Validated against real-world benchmarks (e.g., LFA, NSX)
-* Final MAE: ≈ **1.05 seconds**
-* Inputs normalized via `StandardScaler`
-* No trap-speed overfitting (avoids the "trap speed trap")
+| File | Purpose |
+| --- | --- |
+| `Oracle_App.py` | Streamlit prediction interface |
+| `LagunaPredictorV10.py` | Lightweight inference script |
+| `OptunaNNTuner.py` | Hyperparameter tuning and cross-validation |
+| `LapTimePredictor_MLP_v10_best.h5` | Saved neural-network model |
+| `scaler_v10.pkl` | Saved input scaler for inference |
+| `Oracle_Model_Summary.md` | Technical model summary |
+| `CHANGELOG.md` | Model-development history |
+| `archive/` | Earlier XGBoost and analysis iterations |
 
-### Final Input Features (7):
+## Dataset
 
-* 0–60 (s)
-* 1/4 Mile ET (s)
-* Trap Speed (mph)
-* 60–130 (s)
-* Lateral G @ 120 mph
-* 100–0 Braking (ft)
-* Acceleration Curve (derived)
+The raw training dataset is proprietary and intentionally not included in the public repository. A small sample-input file is provided for format/testing purposes.
 
----
+## Tech stack
 
-## 🛠 Future Features (Planned)
-
-* Track support for Spa, Nürburgring, and others
-* Closest-car comparator from private dataset
-* Residual range/confidence output
-* Car vs car comparison mode
-* Bulk CSV upload support
-* Leaderboard system
-
----
-
-## 🔒 Dataset Notice
-
-This project is powered by a **private proprietary dataset** of 490+ vehicles.
-
-The raw dataset:
-
-* Will never be shown or exposed
-* Powers predictions behind the scenes
-* Enables AI-car integration, lore, and ranking systems
-
----
-
-## ✅ TL;DR
-
-* `LagunaPredictorV10.py` — makes predictions using final v10 model
-* `oracle_app.py` — (coming soon) Streamlit frontend
-* `LapTimePredictor_MLP_v10_best.h5` — trained neural model
-* `scaler_v10.pkl` — input normalizer
-* `Oracle_Model_Summary.md` — deep dive on the modeling process
+Python - Pandas - NumPy - Scikit-learn - TensorFlow/Keras - Optuna - SHAP - Streamlit
